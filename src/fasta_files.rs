@@ -1,9 +1,10 @@
-
-use std::fs;
+use std::io::Write;
 use std::fs::File;
+use std::fs::OpenOptions;
 use std::io::{self, BufRead};
 use std::path::Path;
 
+//to implement 
 struct FastaSequence{
 
     metadata: String,
@@ -73,15 +74,26 @@ pub fn get_metadata(path: &String) -> Vec<String> {
     metadata
 }
 
-//to test 
+
 pub fn write_to_file(path: &String, data:&Vec<String>, metadata: &Vec<String>) {
+
+    if !Path::new(path).exists() {
+        File::create(path).expect("Error encountered while creating file!");
+    }
+
+    let mut f= OpenOptions::new()
+    .write(true)
+    .append(true)
+    .open(path)
+    .unwrap();
+
 
     for i in 0..data.len() {
 
-        fs::write(path, &metadata[i]);
-        fs::write(path, "\n");
-        fs::write(path, &data[i]);
-        fs::write(path, "\n");
+        if let Err(e)= writeln!{f, "{}\n{}", metadata[i], data[i]} {
+            eprintln!("Couldn't write to file: {}", e);
+        }
 
+        
     }
-}
+} 

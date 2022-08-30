@@ -9,38 +9,20 @@ pub fn random_seq(lenght: i64, seq_type: &str) -> String{
     let nt_arn= "aucg";
     let aa= "GAVCPLIMWFSTYNQKRHDE";
     let mut rng = rand::thread_rng();
+    
 
+    match seq_type.to_lowercase().as_str() {
 
-    if seq_type== "dna"{
+        "dna"  => for _i in 0..lenght { rand_seq.push(
+            nt_dna.chars().choose(&mut rng).unwrap());},
 
-        for _i in 0..lenght{
+        "rna" => for _i in 0..lenght { rand_seq.push(
+            nt_arn.chars().choose(&mut rng).unwrap());},
 
-            rand_seq.push(
-                nt_dna.chars().choose(&mut rng).unwrap()
-            );
-
-        }
+        "aa" => for _i in 0..lenght{ rand_seq.push(
+            aa.chars().choose(&mut rng).unwrap());},
         
-    }
-
-    else if seq_type== "rna"{
-
-        for _i in 0..lenght{
-
-            rand_seq.push(
-                nt_arn.chars().choose(&mut rng).unwrap()
-            );
-        }
-    }
-
-    else if seq_type== "aa" {
-
-        for _i in 0..lenght{
-            
-            rand_seq.push(
-            aa.chars().choose(&mut rng).unwrap()
-            );
-        }
+        _ => panic!("Choose a valid type of sequence!(dna, rna or aa for amino acid sequence)")
     }
 
     return rand_seq

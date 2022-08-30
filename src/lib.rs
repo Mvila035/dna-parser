@@ -1,6 +1,7 @@
 pub mod onehot;
 pub mod kmers;
 pub mod random_sequence;
+pub mod fasta_files;
 
 
 
@@ -82,6 +83,7 @@ mod tests {
         let path: String = "/Users/matthieuvilain/desktop/test.fasta".to_string();
 
         write_to_file(&path, &data, &metadata);
+
 
     }
 

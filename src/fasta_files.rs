@@ -97,3 +97,38 @@ pub fn write_to_file(path: &String, data:&Vec<String>, metadata: &Vec<String>) {
         
     }
 } 
+
+
+pub fn get_sequences(path: &String) -> Vec<FastaSequence> {
+
+    let mut sequences = Vec::<String>::new();
+
+    if let Ok(lines) = read_lines(path) {
+
+        let mut current_seq = String::from("");
+        let mut metadata= String::from("");
+        
+        for line in lines{
+
+            if let Ok(data) = line {
+
+                if &data[0..1] == ">" {
+
+                    if metadata.len() > 0 {
+
+                        sequences.push(FastaSequence(metadata, current_seq));
+                        let metadata= String::from("");
+                        let mut current_seq = String::from("");
+                    }
+                    metadata.push(data);
+                
+                }
+            
+                else{
+                    current_seq.push(data)
+                }
+        }
+
+    }
+
+}

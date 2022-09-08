@@ -3,9 +3,12 @@ use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::{self, BufRead};
 use std::path::Path;
+use pyo3::pyclass;
 
 //to implement 
-struct FastaSequence{
+
+#[pyclass]
+pub struct FastaSequence{
 
     metadata: String,
     sequence: String, 
@@ -101,12 +104,12 @@ pub fn write_to_file(path: &String, data:&Vec<String>, metadata: &Vec<String>) {
 
 pub fn get_sequences(path: &String) -> Vec<FastaSequence> {
 
-    let mut sequences = Vec::<String>::new();
+    let mut sequences = Vec::<FastaSequence>::new();
 
     if let Ok(lines) = read_lines(path) {
 
         let mut current_seq = String::from("");
-        let mut metadata= String::from("");
+        let mut current_metadata= String::from("");
         
         for line in lines{
 
@@ -114,21 +117,22 @@ pub fn get_sequences(path: &String) -> Vec<FastaSequence> {
 
                 if &data[0..1] == ">" {
 
-                    if metadata.len() > 0 {
+                    if current_metadata.len() > 0 {
 
-                        sequences.push(FastaSequence(metadata, current_seq));
-                        let metadata= String::from("");
+                        sequences.push(FastaSequence { metadata: current_metadata.clone(), sequence: current_seq.clone() });
+                        let mut current_metadata= String::from("");
                         let mut current_seq = String::from("");
                     }
-                    metadata.push(data);
+                    current_metadata.push_str(&data);
                 
                 }
             
                 else{
-                    current_seq.push(data)
+                    current_seq.push_str(&data)
                 }
+            }
         }
 
     }
-
+    return sequences
 }

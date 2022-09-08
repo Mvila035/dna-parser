@@ -5,6 +5,7 @@ pub mod fasta_files;
 
 
 
+use fasta_files::FastaSequence;
 use numpy::{IntoPyArray, PyArray, PyArray2};
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
@@ -16,6 +17,16 @@ use pyo3::PyResult;
 use onehot::one_hot;
 use kmers::make_kmers;
 use random_sequence::random_seq;
+use fasta_files::get_sequences;
+
+
+
+#[pyfunction]
+fn GetSequences(path: String)-> Vec<FastaSequence> {
+
+    let sequences= get_sequences(&path);
+    return sequences
+}
 
 
 #[pyfunction]
@@ -51,6 +62,7 @@ fn dna_parser(_py: Python<'_>, m: &PyModule)-> PyResult<()> {
     m.add_function(wrap_pyfunction!(OneHot,m)?)?;
     m.add_function(wrap_pyfunction!(MakeKmers,m)?)?;
     m.add_function(wrap_pyfunction!(RandomSeq,m)?)?;
+    m.add_function(wrap_pyfunction!(GetSequences,m)?)?;
 
 
     Ok(())

@@ -1,5 +1,4 @@
-use numpy::ndarray::{Array, ArrayView, array};
-use numpy::ndarray::ArrayBase;
+use numpy::ndarray::ArrayView;
 use numpy::ndarray::Array2;
 
 pub fn one_hot(sequence: &str)-> Array2<i8> {

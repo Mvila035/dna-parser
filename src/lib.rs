@@ -2,15 +2,14 @@ pub mod onehot;
 pub mod kmers;
 pub mod random_sequence;
 pub mod fasta_files;
+pub mod tfidf;
 
 
 
 use fasta_files::FastaSequence;
-use numpy::{IntoPyArray, PyArray, PyArray2};
+use numpy::{IntoPyArray, PyArray2};
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
-use numpy::ndarray::Array2;
-use numpy::ndarray::ArrayView;
 use pyo3::types::PyModule;
 use pyo3::PyResult;
 

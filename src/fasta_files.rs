@@ -121,7 +121,7 @@ pub fn get_sequences(path: &String) -> Vec<FastaSequence> {
 
                         sequences.push(FastaSequence { metadata: current_metadata.clone(), sequence: current_seq.clone() });
                         let mut current_metadata= String::from("");
-                        let mut current_seq = String::from("");
+                        let current_seq = String::from("");
                     }
                     current_metadata.push_str(&data);
                 

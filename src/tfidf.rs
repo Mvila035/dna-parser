@@ -51,7 +51,12 @@ fn compute_tfidf(length:f64, counts: HashMap<&str, f64>, map: &(HashMap<&str,f64
 
     for word in map.1.iter(){
 
-        let tf= counts.get(word).unwrap()/length;
+        //match to see if none in case a word isn't in a sequence
+        let tf= match counts.get(word){
+            Some(x) => x/length,
+            None => 0.0,
+        };
+        
         let idf: f64=  ( map.0.len() as f64 / ( map.0.get(word).unwrap()+1.0 )).ln();
         let tfidf= tf*idf;
 
@@ -71,13 +76,13 @@ pub fn tf_idf(corpus: Vec<String>) -> Array2<f64> {
 
     let mut matrix =Array2::<f64>::zeros((nrows,ncols));
 
-    for seq in corpus.iter() {
-
+    for elements in corpus.iter().zip(matrix.rows_mut()) {
+        let (seq, mut current_row)= elements;
         let seq_len= seq.split_whitespace().count() as f64;
         let counts= word_counts(seq);
 
         let tfidf_vec= compute_tfidf(seq_len, counts, &word_map);
-        matrix.push_row(ArrayView::from(&tfidf_vec)).unwrap();
+        current_row.assign(&ArrayView::from(&tfidf_vec));
         
     }
 

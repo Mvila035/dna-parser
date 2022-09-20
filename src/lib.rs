@@ -7,18 +7,28 @@ pub mod tfidf;
 
 
 use fasta_files::FastaSequence;
-use numpy::{IntoPyArray, PyArray2};
+use numpy::{IntoPyArray, PyArray1, PyArray2};
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 use pyo3::types::PyModule;
 use pyo3::PyResult;
 
-use onehot::one_hot;
+use onehot::*;
 use kmers::make_kmers;
 use random_sequence::random_seq;
 use fasta_files::get_sequences;
+use tfidf::tf_idf;
 
 
+
+#[pyfunction]
+fn tfidf_encoding<'pyt>(py: Python <'pyt>, corpus: Vec<String>) -> &'pyt PyArray2<f64> {
+
+    let array= tf_idf(corpus);
+    let py_array= array.into_pyarray(py);
+
+    py_array
+}
 
 #[pyfunction]
 fn GetSequences(path: String)-> Vec<FastaSequence> {
@@ -29,7 +39,7 @@ fn GetSequences(path: String)-> Vec<FastaSequence> {
 
 
 #[pyfunction]
-fn OneHot<'pyt>(py:  Python <'pyt>, seq: String) ->  &'pyt PyArray2<i8>{
+fn onehot_encoding<'pyt>(py:  Python <'pyt>, seq: String) ->  &'pyt PyArray2<i8>{
 
 
     let  matrix= one_hot(&seq);
@@ -41,6 +51,20 @@ fn OneHot<'pyt>(py:  Python <'pyt>, seq: String) ->  &'pyt PyArray2<i8>{
 
 
 #[pyfunction]
+fn ordinal_encoding<'pyt>(py:  Python <'pyt>, seq: String) ->  &'pyt PyArray1<f32>{
+
+
+    let  matrix= ordinal(&seq);
+    let pyarray= matrix.into_pyarray(py);
+
+    return pyarray
+    
+}
+
+
+
+
+#[pyfunction]
 fn MakeKmers(seq: String, k: i64) -> String {
 
     let return_seq= make_kmers(k,&seq);
@@ -49,7 +73,7 @@ fn MakeKmers(seq: String, k: i64) -> String {
 }
 
 #[pyfunction]
-fn RandomSeq(length: i64, seq_type: String) -> String {
+fn rand_sequences(length: i64, seq_type: String) -> String {
 
     let return_seq= random_seq(length, &seq_type);
     return return_seq
@@ -58,10 +82,12 @@ fn RandomSeq(length: i64, seq_type: String) -> String {
 #[pymodule]
 fn dna_parser(_py: Python<'_>, m: &PyModule)-> PyResult<()> {
 
-    m.add_function(wrap_pyfunction!(OneHot,m)?)?;
+    m.add_function(wrap_pyfunction!(onehot_encoding,m)?)?;
     m.add_function(wrap_pyfunction!(MakeKmers,m)?)?;
-    m.add_function(wrap_pyfunction!(RandomSeq,m)?)?;
+    m.add_function(wrap_pyfunction!(rand_sequences,m)?)?;
     m.add_function(wrap_pyfunction!(GetSequences,m)?)?;
+    m.add_function(wrap_pyfunction!(tfidf_encoding,m)?)?;
+    m.add_function(wrap_pyfunction!(ordinal_encoding,m)?)?;
 
 
     Ok(())
@@ -72,28 +98,15 @@ fn dna_parser(_py: Python<'_>, m: &PyModule)-> PyResult<()> {
 #[cfg(test)]
 mod tests {
 
-    use crate::random_sequence::random_seq;
-    use crate::fasta_files::write_to_file;
-    
-    #[test]
-    fn random_test() {
-        let len: i64 = 100;
-        let seq= random_seq(len, "dna");
-
-        println!("{},{}", seq.chars().count(), seq);
-
-        let test= len as usize;
-        assert_eq!(seq.chars().count(),test);
-    }
+    use crate::tfidf::tf_idf;
 
     #[test]
-    fn write_test() {
+    fn tfidf_test(){
 
-        let metadata: Vec<String>= ["lol".to_string(), "abcd".to_string(), "okay".to_string()].to_vec();
-        let data: Vec<String> = ["bonjour".to_string(), "oui".to_string(), "yes".to_string()].to_vec();
-        let path: String = "/Users/matthieuvilain/desktop/test.fasta".to_string();
-
-        write_to_file(&path, &data, &metadata);
+        
+        let corpus= vec![String::from("ACGT ACGT ATTT AGGG"), String::from("ACGT ACCT ACGT ACCC"), String::from("ACGT ACCC AGTC ACGT")];
+        let array= tf_idf(corpus);
+        println!("{}",array);
 
 
     }

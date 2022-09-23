@@ -1,5 +1,7 @@
 
-pub fn make_kmers(k: i64, sequence: &str) -> String {
+use pyo3::prelude::*;
+
+fn string_to_kmers(k: i64, sequence: &str) -> String {
 
     let mut new_str= String::from("");
     let k_usize= k as usize;
@@ -15,4 +17,12 @@ pub fn make_kmers(k: i64, sequence: &str) -> String {
         
     }   
     return new_str
+}
+
+#[pyfunction]
+pub fn make_kmers(seq: String, k: i64) -> String {
+
+    let return_seq= string_to_kmers(k,&seq);
+
+    return return_seq
 }

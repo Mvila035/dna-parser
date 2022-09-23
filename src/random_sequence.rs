@@ -1,7 +1,8 @@
 
 use rand::seq::IteratorRandom;
+use pyo3::prelude::*;
 
-pub fn random_seq(lenght: i64, seq_type: &str) -> String{
+fn random_seq(lenght: i64, seq_type: &str) -> String{
 
     
     let mut rand_seq= String::from("");
@@ -27,4 +28,11 @@ pub fn random_seq(lenght: i64, seq_type: &str) -> String{
 
     return rand_seq
 
+}
+
+#[pyfunction]
+pub fn rand_sequences(length: i64, seq_type: String) -> String {
+
+    let return_seq= random_seq(length, &seq_type);
+    return return_seq
 }

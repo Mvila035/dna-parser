@@ -1,6 +1,8 @@
 
 use numpy::ndarray::ArrayView;
 use numpy::ndarray::Array2;
+use numpy::{IntoPyArray, PyArray2};
+use pyo3::prelude::*;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
@@ -57,7 +59,14 @@ fn compute_tfidf(length:f64, counts: HashMap<&str, f64>, map: &(HashMap<&str,f64
             None => 0.0,
         };
         
-        let idf: f64=  ( map.0.len() as f64 / ( map.0.get(word).unwrap()+1.0 )).ln();
+        //here use match in case we use the mapping of the corpus to transforme an sequence that is not 
+        //part of it.
+        //if a word of this seq not in corpus x= 0 (never appearred in corpus ) instead of None
+        let idf= match map.0.get(word){
+            Some(x) => (map.0.len() as f64/ (x+1.0)).ln(),
+            None=> (map.0.len() as f64).ln(),
+        };
+
         let tfidf= tf*idf;
 
         tfidf_vec.push(tfidf);
@@ -67,8 +76,8 @@ fn compute_tfidf(length:f64, counts: HashMap<&str, f64>, map: &(HashMap<&str,f64
     tfidf_vec
 }
 
-pub fn tf_idf(corpus: Vec<String>) -> Array2<f64> {
-
+#[pyfunction]
+pub fn tfidf_encoding<'pyt>(py: Python <'pyt>, corpus: Vec<String>) -> &'pyt PyArray2<f64> {
 
     let word_map= map_vocabulary(&corpus);
     let nrows= corpus.len();
@@ -87,5 +96,8 @@ pub fn tf_idf(corpus: Vec<String>) -> Array2<f64> {
     }
 
     
-    matrix
+    let py_array= matrix.into_pyarray(py);
+    py_array
+
+    
 }

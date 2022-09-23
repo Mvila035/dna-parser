@@ -39,10 +39,10 @@ pub fn get_dna_only(path: &String) -> Vec<String> {
                 if let Ok(dna) = line {
 
                     //check if line is metadata (begining of new sequence)
-                    if &dna[0..1] != ">" {
+                    if &dna[0..1] != ">"{
                         seq.push_str(&dna);
                     }
-                    else {
+                    else if seq.len() > 0 {
                         sequences.push(seq);
                         seq = String::from("");
                     }
@@ -102,7 +102,7 @@ pub fn write_to_file(path: &String, data:&Vec<String>, metadata: &Vec<String>) {
 } 
 
 
-pub fn get_sequences(path: &String) -> Vec<FastaSequence> {
+fn get_sequences(path: &String) -> Vec<FastaSequence> {
 
     let mut sequences = Vec::<FastaSequence>::new();
 

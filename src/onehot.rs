@@ -1,6 +1,7 @@
 use numpy::ndarray::ArrayView;
 use numpy::ndarray::Array2;
 use numpy::{IntoPyArray, PyArray2};
+use numpy::Ix1;
 use pyo3::prelude::*;
 
 
@@ -33,10 +34,10 @@ fn one_hot(sequence: &str)-> Array2<i8> {
 }
 
 #[pyfunction]
-pub fn onehot_encoding<'pyt>(py:  Python <'pyt>, seq: String) ->  &'pyt PyArray2<i8>{
+pub fn onehot_encoding<'pyt>(py:  Python <'pyt>, seq: &str) ->  &'pyt PyArray2<i8>{
 
 
-    let  matrix= one_hot(&seq);
+    let  matrix= one_hot(seq);
     let pyarray= matrix.into_pyarray(py);
 
     return pyarray

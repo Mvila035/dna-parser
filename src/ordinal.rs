@@ -1,6 +1,8 @@
-use numpy::ndarray::{Array,Array1,Array2};
-use numpy::{IntoPyArray, PyArray1, PyArray2};
+use numpy::ndarray::{Array,Array1};
+use numpy::{IntoPyArray, PyArray1};
 use pyo3::prelude::*;
+use pyo3::types::PyList;
+use std::thread;
 use crate::fasta_files::get_dna_only;
 
 
@@ -36,47 +38,78 @@ pub fn ordinal(sequence: &str)-> Array1<f32>{
     matrix
 }
 
+
+#[allow(unused_must_use)]
 #[pyfunction]
-pub fn batch_ordinal_encoding<'pyt>(py:  Python <'pyt>, sequences: Vec<&str>) ->  &'pyt PyArray2<f32>{
+pub fn batch_ordinal_encoding<'pyt>(py:  Python <'pyt>, sequences: Vec<&str>, ) ->  &'pyt PyList{
 
-    let nrows= sequences.len();
-    let ncols=sequences[0].len();
-    let mut matrix = Array2::<f32>::zeros((nrows,ncols));
+    let (first,second)= sequences.split_at(sequences.len()/2);
+    let mut list_2= Vec::new();
+    let mut list = Vec::new();
+    let py_list= PyList::empty(py);
 
-    for elements in sequences.iter().zip(matrix.rows_mut()){
+    thread::scope(|s|{
+    
 
-        let (seq,mut current_row)= elements;
-        let encoding= ordinal(seq);
-        current_row.assign(&encoding);
+        s.spawn(|| {
+            
+            for seq in second.into_iter(){
+
+                let encoding= ordinal(seq);
+                
+                list_2.push(encoding);
+                
+            }
+
+        });
+        
+
+        for seq in first.into_iter(){
+
+            let encoding= ordinal(seq);
+            
+            list.push(encoding);
+            
+        }
+
+
+       
+    
+       
+    });
+
+    for seq in list {
+
+        py_list.append(seq.into_pyarray(py));
     }
 
-    let py_array= matrix.into_pyarray(py);
-    py_array
+    for seq_2 in list_2 {
 
+        py_list.append(seq_2.into_pyarray(py));
+    }
+    
+    py_list
+    
 }
 
 
-
+#[allow(unused_must_use)]
 #[pyfunction]
-pub fn ordinal_from_fasta<'pyt>(py: Python  <'pyt>,path: String) -> &'pyt PyArray2<f32>{
+pub fn ordinal_from_fasta<'pyt>(py: Python  <'pyt>,path: String) -> &'pyt PyList{
 
     let sequences= get_dna_only(&path);
-    let nrows= sequences.len();
-    let ncols=sequences[0].len();
-    let mut matrix = Array2::<f32>::zeros((nrows,ncols));
+    let list = PyList::empty(py);
 
-    for elements in sequences.iter().zip(matrix.rows_mut()){
+    for seq in sequences{
 
-        let (seq,mut current_row)= elements;
-        let encoding= ordinal(seq);
-        current_row.assign(&encoding);
+        let encoding= ordinal(&seq);
+        
+        list.append(encoding.into_pyarray(py));
+        
     }
 
-
-    let py_array= matrix.into_pyarray(py);
-
-    py_array
-
+    
+    list
 }
 
 

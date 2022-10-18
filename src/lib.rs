@@ -13,12 +13,14 @@ use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 use pyo3::types::PyModule;
 use pyo3::PyResult;
+use num_cpus;
 
 use onehot::*;
 use kmers::*;
 use random_sequence::*;
 use tfidf::*;
 use ordinal::*;
+
 
 
 

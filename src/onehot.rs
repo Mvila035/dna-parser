@@ -1,7 +1,6 @@
 use numpy::ndarray::ArrayView;
 use numpy::ndarray::Array2;
 use numpy::{IntoPyArray, PyArray2};
-use numpy::Ix1;
 use pyo3::prelude::*;
 
 
